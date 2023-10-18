@@ -52,11 +52,11 @@ class UI(object):
     def configitems(self,_):
         return self._config.items()
     def write(self,s):
-        print(s, end="")
+        print(s.decode(), end="")
     def warn(self,s):
-        print(s, end="")
+        print(s.decode(), end="")
     def status(self,s):
-        print(s, end="")
+        print(s.decode(), end="")
     def username(self):
         sp = subprocess.Popen(['git','config','user.name'],stdout=subprocess.PIPE)
         return sp.communicate()[0].rstrip()
