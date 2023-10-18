@@ -218,10 +218,10 @@ def iadd(ui, repo, id = None, comment = 0, **opts):
         ui.warn(b'No such comment number in mailbox, commenting on the issue itself\n')
 
     if not id:
-        outer.add_header('Message-Id', "<%s-0-artemis@%s>" % (issue_id, socket.gethostname()))
+        outer.add_header('Message-Id', "<%s-0-artemis@%s>" % (issue_id.decode(), socket.gethostname()))
     else:
         root = keys[0]
-        outer.add_header('Message-Id', "<%s-%s-artemis@%s>" % (issue_id, _random_id(), socket.gethostname()))
+        outer.add_header('Message-Id', "<%s-%s-artemis@%s>" % (issue_id.decode(), _random_id().decode(), socket.gethostname()))
         outer.add_header('References', mbox[(comment < len(mbox) and keys[comment]) or root]['Message-Id'])
         outer.add_header('In-Reply-To', mbox[(comment < len(mbox) and keys[comment]) or root]['Message-Id'])
     new_bug_path = issue_fn + b'/new/' + pycompat.fsencode(mbox.add(outer))
