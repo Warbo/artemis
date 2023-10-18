@@ -159,7 +159,9 @@ def iadd(ui, repo, id = None, comment = 0, **opts):
         default_issue_text +=     b"State: %s\n" % default_state
         default_issue_text +=     b"Subject: brief description\n\n"
     else:
-        subject = mbox[(comment < len(mbox) and keys[comment]) or root][b'Subject']
+        subject = mbox[
+            (comment < len(mbox) and keys[comment]) or root
+        ]['Subject'].encode()
         if not subject.startswith(b'Re: '): subject = b'Re: ' + subject
         default_issue_text +=     b"Subject: %s\n\n" % subject
     default_issue_text +=         b"Detailed description."
@@ -326,10 +328,10 @@ def _write_message(ui, message, index = 0, skip = None):
     if ui.verbose:
         _show_text(ui, message.as_bytes().strip(), skip)
     else:
-        if b'From' in message: ui.write(b'From: %s\n' % message[b'From'])
-        if b'Date' in message: ui.write(b'Date: %s\n' % message[b'Date'])
-        if b'Subject' in message: ui.write(b'Subject: %s\n' % message[b'Subject'])
-        if b'State' in message: ui.write(b'State: %s\n' % message[b'State'])
+        if 'From' in message: ui.write(b'From: %s\n' % message['From'].encode())
+        if 'Date' in message: ui.write(b'Date: %s\n' % message['Date'].encode())
+        if 'Subject' in message: ui.write(b'Subject: %s\n' % message['Subject'].encode())
+        if 'State' in message: ui.write(b'State: %s\n' % message['State'].encode())
         counter = 1
         for part in message.walk():
             ctype = part.get_content_type()
@@ -359,8 +361,8 @@ def _show_mbox(ui, mbox, comment, **opts):
     msg = mbox[keys[comment]]
     ui.write(b'='*70 + b'\n')
     if comment:
-        ui.write(b'Subject: %s\n' % mbox[root][b'Subject'])
-        ui.write(b'State: %s\n' % mbox[root][b'State'])
+        ui.write(b'Subject: %s\n' % mbox[root]['Subject'].encode())
+        ui.write(b'State: %s\n' % mbox[root]['State'].encode())
         ui.write(b'-'*70 + b'\n')
     _write_message(ui, msg, comment, skip = ('skip' in opts) and opts['skip'])
     ui.write(b'-'*70 + b'\n')
@@ -371,13 +373,13 @@ def _show_mbox(ui, mbox, comment, **opts):
     i = 0
     for k in keys:
         m = mbox[k]
-        messages[m[b'Message-Id']] = (i,m)
-        children.setdefault(m[b'In-Reply-To'], []).append(m[b'Message-Id'])
+        messages[m['Message-Id']] = (i,m)
+        children.setdefault(m['In-Reply-To'], []).append(m['Message-Id'])
         i += 1
     children[None] = []                # Safeguard against infinte loop on empty Message-Id
 
     # Iterate over children
-    id = msg[b'Message-Id']
+    id = msg['Message-Id']
     id_stack = (id in children and [(x, 1) for x in reversed(children[id])]) or []
     if not id_stack: return
     ui.write(b'Comments:\n')
@@ -385,7 +387,9 @@ def _show_mbox(ui, mbox, comment, **opts):
         id,offset = id_stack.pop()
         id_stack += (id in children and [(x, offset+1) for x in reversed(children[id])]) or []
         index, msg = messages[id]
-        ui.write(b'  '*offset + b'%d: [%s] %s\n' % (index, shortuser(msg[b'From']), msg[b'Subject']))
+        ui.write(b'  '*offset + b'%d: [%s] %s\n' % (
+            index, shortuser(msg['From'].encode()), msg['Subject'].encode()
+        ))
     ui.write(b'-'*70 + b'\n')
 
 def _find_root_key(maildir):
@@ -396,7 +400,7 @@ def _find_root_key(maildir):
 def _order_keys_date(mbox):
     keys = list(mbox.keys())
     root = _find_root_key(mbox)
-    keys.sort(key=lambda k: parsedate(mbox[k][b'date']))
+    keys.sort(key=lambda k: parsedate(mbox[k]['date'].encode()))
     return keys
 
 def _find_mbox_date(mbox, root, order):
