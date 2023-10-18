@@ -324,7 +324,7 @@ def _get_properties(property_list):
 def _write_message(ui, message, index = 0, skip = None):
     if index: ui.write(b"Comment: %d\n" % index)
     if ui.verbose:
-        _show_text(ui, message.as_string().strip(), skip)
+        _show_text(ui, message.as_bytes().strip(), skip)
     else:
         if b'From' in message: ui.write(b'From: %s\n' % message[b'From'])
         if b'Date' in message: ui.write(b'Date: %s\n' % message[b'Date'])
