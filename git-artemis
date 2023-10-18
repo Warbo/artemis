@@ -45,7 +45,7 @@ class UI(object):
         self._config  = config
         self.verbose  = True
     def config(self,group,name,**opts):
-        if group=='artemis':
+        if group==b'artemis':
             return self._config.get(name,opts['default'])
         else:
             raise NotFound(group,name)
@@ -77,11 +77,11 @@ class UI(object):
 # Monkeypatch the hg commands object to implement git equivalent functionality.
 # It would be nice to disable the commands we don't re-implement.
 def git_add(ui,repo,path):
-    rc = subprocess.call("git add '%s'"%(path,),shell=True)
+    rc = subprocess.call(b"git add '%s'"%(path,),shell=True)
     if rc!=0:
         raise Exception("git add failed")
 def git_commit(ui,repo,path):
-    rc = subprocess.call("git commit -m 'commit from artemis' -- '%s'"%(path,),shell=True)
+    rc = subprocess.call(b"git commit -m 'commit from artemis' -- '%s'"%(path,),shell=True)
     if rc!=0:
         raise Exception("git commit failed")
 #artemis.commands.clear()  # how to do this?
@@ -95,12 +95,12 @@ def _build_argparse_from_cmdtable():
     parser     = ArgumentParser()
     subparsers = parser.add_subparsers(help="simple issue tracker")
     for k,v in artemis.cmdtable.items():
-        assert k[0]=='i'
-        n  = k[1:]
+        assert k[0]==b'i'[0]
+        n  = k.decode()[1:]
         sp = subparsers.add_parser(n)
         for f in v[1]:
-            args   = ([] if f[0]=='' else ['-'+f[0]])+['--'+f[1]]
-            kwargs = {'help':f[3]}
+            args   = (['-'+f[0].decode()] if f[0] else [])+['--'+f[1].decode()]
+            kwargs = {'help':f[3].decode()}
             if f[2] in [False,None]:
                 kwargs['action']  = 'store_true'
             elif f[2]==[]:
@@ -108,12 +108,12 @@ def _build_argparse_from_cmdtable():
                 kwargs['default'] = []
             else:
                 kwargs['action']  = 'store'
-            if isinstance(f[2],basestring):
+            if isinstance(f[2],bytes):
                 kwargs['default'] = ''
             sp.add_argument(*args,**kwargs)
-        sc = v[2].split(' ')
+        sc = v[2].decode().split(' ')
         assert sc[0]=='hg'
-        assert sc[1]==k
+        assert sc[1]==k.decode()
         assert sc[2]=='[OPTIONS]'
         for a in sc[3:]:
             kwargs = {'action':'store'}
@@ -125,13 +125,13 @@ def _build_argparse_from_cmdtable():
                 if n=='COMMENT':
                     kwargs['default'] = 0
             sp.add_argument(n.lower(),**kwargs)
-        sp.set_defaults(func=globals()[k])
+        sp.set_defaults(func=globals()[k.decode()])
     return parser
 
 
 if __name__=='__main__':
     repo   = Repo()
-    ui     = UI({'issues':artemis.default_issues_dir})
+    ui     = UI({b'issues':artemis.default_issues_dir})
     parser = _build_argparse_from_cmdtable()
     args   = parser.parse_args()
     args.func(args,repo,ui)
