@@ -69,7 +69,7 @@ class UI(object):
             if rc!=0:
                 raise Exception('edit failed')
             else:
-                return file(fn).read()
+                return open(fn, 'rb').read()
         finally:
             os.unlink(fn)
 
