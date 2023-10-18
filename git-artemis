@@ -16,6 +16,7 @@ from collections import namedtuple
 # munge arguments and pass on to artemis
 def iadd(args,repo,ui):
     id = args.id
+    id = id if id is None else id.encode()
     d  = dict(args.__dict__)
     del d['id']
     artemis.iadd(ui,repo,id,**d)
@@ -25,6 +26,7 @@ def ilist(args,repo,ui):
 
 def ishow(args,repo,ui):
     id = args.id
+    id = id if id is None else id.encode()
     d  = dict(args.__dict__)
     del d['id']
     artemis.ishow(ui,repo,id,**d)
